@@ -51,6 +51,7 @@ namespace StrategyPattern
             Console.ReadLine();
         }
 
+        // adding comment just to commit develop branch
         private static IEnumerable<StrategyItem> Strategies(int criteria)
         {
             List<StrategyItem> strategies = null;
