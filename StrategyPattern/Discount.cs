@@ -9,7 +9,7 @@ namespace StrategyPattern
     //strategy interface
     public interface IDiscountStrategy
     {
-        List<ICartItem> ApplyDiscount(List<ICartItem> cartItems);
+        double GetDiscount(ICartItem cartItem);
     }
 
     //Discount context (must context class)
@@ -43,60 +43,57 @@ namespace StrategyPattern
             this._strategy = strategy;
         }
 
-        public List<ICartItem> ExecuteStrategy(List<ICartItem> cartItems)
+        public double ExecuteStrategy(List<ICartItem> cartItems)
         {
-            return _strategy.ApplyDiscount(cartItems);
+            double discount = 0;
+            foreach (var cartItem in cartItems)
+            {
+                discount += _strategy.GetDiscount(cartItem);
+            }
+            return discount;
         }
     }
 
 
     //Concrete strategy class
-    public class NewDiscountStrategy : IDiscountStrategy
+    public class CustomerDiscountStrategy : IDiscountStrategy
     {
         private int discountPercentage;
-        public NewDiscountStrategy(string itemCode)
+        public CustomerDiscountStrategy(string itemCode)
         {
             this.discountPercentage = Convert.ToInt32(itemCode.Replace("DIS", ""));
         }
-        public NewDiscountStrategy()
+        public CustomerDiscountStrategy()
         {
             this.discountPercentage = 0;
         }
 
-        public List<ICartItem> ApplyDiscount(List<ICartItem> cartItems)
+        public double GetDiscount(ICartItem cartItem)
         {
-            cartItems.ForEach(cartItem =>
-            cartItem.Cost = cartItem.Cost * (100 - discountPercentage) * 0.01);
-            return cartItems;
+            return cartItem.Cost * (100 - discountPercentage) * 0.01;
         }
     }
 
     //Concrete strategy class
-    public class NextItemDiscountStrategy : IDiscountStrategy
+    public class SeasonalDiscountStrategy : IDiscountStrategy
     {
         private int discountDollar;
         int cartIndex;
         public string itemCode;
-        public NextItemDiscountStrategy(string itemCode)
+        public SeasonalDiscountStrategy(string itemCode)
         {           
             this.discountDollar = Convert.ToInt32(itemCode.Replace("DIS", ""));
             this.itemCode = itemCode;
         }
 
-        public NextItemDiscountStrategy()
+        public SeasonalDiscountStrategy()
         {
             this.discountDollar = Convert.ToInt32(itemCode.Replace("DIS", ""));
         }
 
-        public List<ICartItem> ApplyDiscount(List<ICartItem> cartItems)
+        public double GetDiscount(ICartItem cartItem)
         {
-
-            cartIndex = cartItems.FindIndex(i => i.ItemCode == itemCode);
-            if (cartIndex > -1 && cartIndex < cartItems.Count - 1)
-            {
-                cartItems[cartIndex + 1].Cost -= discountDollar;
-            }
-            return cartItems;
+            return cartItem.Cost * (100 - discountDollar) * 0.01;
         }
     }
 

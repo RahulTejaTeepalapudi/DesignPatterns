@@ -26,57 +26,28 @@ namespace StrategyPattern
                 ItemList = new List<ICartItem>() { P1, P2, P3, P4 }
             };
 
+            var totalCost = mycart.CalculateTotalCost();
 
-            //new NewDiscountStrategy("DIS10")
-            //new NextItemDiscount("DIS1")
-            
-            // Create a context and run through all the strategies to calculate discount on cart items
-
-            DiscountContext context = new DiscountContext("DIS10");
-            var strategies = Strategies(10);
-            foreach (var strategy in strategies)
+            var discountStrategies = DiscountStrategies();
+            double totalDiscount = 0;
+            foreach (var strategy in discountStrategies)
             {
-                if (strategy.IsApplicable)
-                {
-                    context.SetStrategy(strategy.Strategy);
-                    var discounted = context.ExecuteStrategy(mycart.ItemList);
-                }
+                if(strategy.IsApplicable)
+                    totalDiscount += mycart.CalculateTotalDiscount(strategy.Strategy);
             }
-
-            //DiscountContext dc2 = new DiscountContext("DIS1");
-
-            //Cart mycart = new Cart();            
-            //mycart.ItemList = new List<ICartItem>() { P1, P2, dc1,dc2, P3, P4 };            
-            Console.WriteLine(mycart.GetCartTotal());
+            
+            Console.WriteLine("Net Amount to be paid: {0}", totalCost - totalDiscount);
             Console.ReadLine();
         }
 
-        // adding comment just to commit develop branch
-        private static IEnumerable<StrategyItem> Strategies(int criteria)
+        private static IEnumerable<StrategyItem> DiscountStrategies()
         {
-            List<StrategyItem> strategies = null;
-            switch (criteria)
+            return new List<StrategyItem> 
             {
-                case 1:
-                    strategies = new List<StrategyItem> {
-                                    new StrategyItem { DiscountType = string.Empty, Strategy = new NewDiscountStrategy(), IsApplicable = true }
-                                };
-                    break;
-                case 2:
-                    strategies = new List<StrategyItem> {
-                                    new StrategyItem { DiscountType = string.Empty, Strategy = new NextItemDiscountStrategy(), IsApplicable = true }
-                                };
-                    break;
-                default:
-                    strategies = new List<StrategyItem> {
-                                    new StrategyItem { DiscountType = string.Empty, Strategy = new NewDiscountStrategy(), IsApplicable = true },
-                                    new StrategyItem { DiscountType = string.Empty, Strategy = new NextItemDiscountStrategy(), IsApplicable = true }
-                                };
-                    break;
-            }
-            return strategies;
+                new StrategyItem { Strategy = new CustomerDiscountStrategy(), IsApplicable = true },
+                new StrategyItem { Strategy = new SeasonalDiscountStrategy(), IsApplicable = false }
+            };
         }
-
 
     }
 }
